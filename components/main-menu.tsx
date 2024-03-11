@@ -15,6 +15,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
+import NetworkSwitcher from "./network-switcher"
+
 export const MainMenu = memo(() => {
   const { isConnected, address } = useAccount()
   const { connect, isLoading, error } = useConnect({
@@ -24,26 +26,29 @@ export const MainMenu = memo(() => {
 
   if (isConnected) {
     return (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline">{address}</Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56">
-          <DropdownMenuGroup>
+      <>
+        <NetworkSwitcher />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline">{address}</Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56">
+            <DropdownMenuGroup>
+              <DropdownMenuItem>
+                <User className="mr-2 h-4 w-4" />
+                <Link href="/profile">Profile</Link>
+                <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <User className="mr-2 h-4 w-4" />
-              <Link href="/profile">Profile</Link>
-              <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span onClick={() => disconnect()}>Logout</span>
+              <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
             </DropdownMenuItem>
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <LogOut className="mr-2 h-4 w-4" />
-            <span onClick={() => disconnect()}>Logout</span>
-            <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </>
     )
   } else {
     return (
