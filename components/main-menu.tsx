@@ -1,12 +1,22 @@
 import { memo } from "react"
-import { Loader2 } from "lucide-react"
+import Link from "next/link"
+import { Loader2, LogOut, User } from "lucide-react"
 import { useAccount, useConnect, useDisconnect } from "wagmi"
 import { InjectedConnector } from "wagmi/connectors/injected"
 
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export const MainMenu = memo(() => {
-  const { isConnected } = useAccount()
+  const { isConnected, address } = useAccount()
   const { connect, isLoading, error } = useConnect({
     connector: new InjectedConnector(),
   })
@@ -14,9 +24,26 @@ export const MainMenu = memo(() => {
 
   if (isConnected) {
     return (
-      <div>
-        <Button onClick={() => disconnect()}>Disconnect</Button>
-      </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline">{address}</Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56">
+          <DropdownMenuGroup>
+            <DropdownMenuItem>
+              <User className="mr-2 h-4 w-4" />
+              <Link href="/profile">Profile</Link>
+              <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem>
+            <LogOut className="mr-2 h-4 w-4" />
+            <span onClick={() => disconnect()}>Logout</span>
+            <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     )
   } else {
     return (
