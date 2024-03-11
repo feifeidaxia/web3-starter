@@ -1,47 +1,39 @@
-import type { AppProps } from 'next/app'
-import { trpc } from '@/lib/trpc'
-
-import { WagmiConfig, createClient, configureChains } from 'wagmi'
-import { polygonMumbai } from '@wagmi/core/chains'
-import { alchemyProvider } from 'wagmi/providers/alchemy'
-import { publicProvider } from 'wagmi/providers/public'
-import { MetaMaskConnector } from 'wagmi/connectors/metaMask'
-
+import type { AppProps } from "next/app"
+import { mainnet, polygonMumbai, sepolia } from "@wagmi/core/chains"
 import { ThemeProvider } from "next-themes"
+import { WagmiConfig, configureChains, createClient } from "wagmi"
+import { MetaMaskConnector } from "wagmi/connectors/metaMask"
+import { jsonRpcProvider } from "wagmi/providers/jsonRpc"
+import { publicProvider } from "wagmi/providers/public"
 
-import { Inter as FontSans } from "@next/font/google"
-
+import { trpc } from "@/lib/trpc"
 import { Toaster } from "@/components/ui/toaster"
 
 import "@/styles/globals.css"
 
-const fontSans = FontSans({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  display: "swap",
-})
-
 const { chains, provider, webSocketProvider } = configureChains(
-  [ polygonMumbai ],
-  [alchemyProvider({ apiKey: process.env.ALCHEMY_API_KEY! }), publicProvider()],
+  [polygonMumbai, sepolia, mainnet],
+  [
+    jsonRpcProvider({
+      rpc: (chain) => ({
+        http: "https://1rpc.io/sepolia",
+      }),
+    }),
+    publicProvider(),
+  ]
 )
 
 const wagmiClient = createClient({
   autoConnect: true,
   provider,
   webSocketProvider,
-  connectors: [
-    new MetaMaskConnector({ chains }),
-  ],
+  connectors: [new MetaMaskConnector({ chains })],
 })
 
 const App = ({ Component, pageProps }: AppProps) => {
   return (
     <>
       <style jsx global>{`
-        :root {
-          --font-sans: ${fontSans.style.fontFamily};
-        }
         #__next {
           min-height: 100vh;
           display: flex;
@@ -58,4 +50,4 @@ const App = ({ Component, pageProps }: AppProps) => {
   )
 }
 
-export default trpc.withTRPC(App);
+export default trpc.withTRPC(App)
