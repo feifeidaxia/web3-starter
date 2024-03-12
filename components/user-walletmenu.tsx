@@ -1,4 +1,4 @@
-import { memo, useState } from "react"
+import { memo, useEffect, useState } from "react"
 import { wagmigotchiABI } from "@/assets/data/abi/index"
 import Icon from "@/assets/svg/one"
 import { BigNumber, utils } from "ethers"
@@ -8,7 +8,7 @@ import {
   usePrepareContractWrite,
   useWaitForTransaction,
 } from "wagmi"
-
+import { useDebounceValue } from 'usehooks-ts'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -22,12 +22,14 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Address } from 'viem';
 
 const UesrMenu = memo(function MainMenu(props: any) {
   const { address } = props
   const [ethValue, setEthValue] = useState("")
   const [toAddress, setToAddress] = useState("")
   const [weiValue, setWeiValue] = useState<BigNumber>(BigNumber.from(0))
+  // const debouncedTokenId = useDebounceValue(ethValue, 500)
 
   const { data: userInfo } = useBalance({
     address,
@@ -37,7 +39,7 @@ const UesrMenu = memo(function MainMenu(props: any) {
     address: "0x0d52b8D6311689396cc797CdECA7218B4a1f6188",
     abi: wagmigotchiABI,
     functionName: "transfer",
-    args: [toAddress as `0x${string}`, weiValue],
+    args: [toAddress as Address, weiValue],
   })
 
   const { data: writeData, write } = useContractWrite(config)
@@ -46,14 +48,15 @@ const UesrMenu = memo(function MainMenu(props: any) {
     hash: writeData?.hash,
   })
 
-  const handleChange = (e) => {
+  const handleChange = (e: { target: { value: any } }) => {
     const value = e.target.value
     setEthValue(value)
-    setWeiValue(BigNumber.from(utils.parseEther(value.toString())))
+    setWeiValue(BigNumber.from(utils.parseEther(value.toString())));
   }
   const handleToAddressChange = (e) => {
     setToAddress(e.target.value)
   }
+
   return (
     <Tabs defaultValue="send" className="w-[400px]">
       <TabsList className="grid w-full grid-cols-2">
@@ -74,6 +77,7 @@ const UesrMenu = memo(function MainMenu(props: any) {
                 value={ethValue}
                 onChange={handleChange}
                 id="ethValue"
+                placeholder="account"
               />
             </div>
             <div className="space-y-1">
@@ -106,24 +110,14 @@ const UesrMenu = memo(function MainMenu(props: any) {
                 value={toAddress}
                 onChange={handleToAddressChange}
                 id="username"
-                placeholder="钱包地址或ENS名称"
+                placeholder="address"
               />
             </div>
           </CardContent>
           <CardFooter className="relative">
             <Button disabled={!write || isLoading} onClick={() => write?.()}>
-              发送
+              transfer
             </Button>
-            {isSuccess && (
-              <div>
-                Successfully minted your NFT!
-                <div>
-                  <a href={`https://etherscan.io/tx/${writeData?.hash}`}>
-                    Etherscan
-                  </a>
-                </div>
-              </div>
-            )}
           </CardFooter>
         </Card>
       </TabsContent>
