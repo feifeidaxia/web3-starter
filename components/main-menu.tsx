@@ -17,7 +17,7 @@ import {
 
 import NetworkSwitcher from "./network-switcher"
 
-export const MainMenu = memo(() => {
+const MainMenu = memo(function MainMenu() {
   const { isConnected, address } = useAccount()
   const { connect, isLoading, error } = useConnect({
     connector: new InjectedConnector(),
@@ -65,3 +65,4 @@ export const MainMenu = memo(() => {
     )
   }
 })
+export default MainMenu

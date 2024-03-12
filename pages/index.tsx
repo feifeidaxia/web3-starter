@@ -4,7 +4,7 @@ import Head from "next/head"
 import { Layout } from "@/components/layout"
 
 const DynamicMainMenu = dynamic(
-  () => import("../components/main-menu").then((model) => model.MainMenu),
+  () => import("../components/main-menu").then((model) => model.default),
   { ssr: true }
 )
 
