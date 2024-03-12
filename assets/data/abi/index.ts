@@ -1,4 +1,4 @@
-export const abi = [
+export const wagmigotchiABI = [
   {
     inputs: [
       {
@@ -428,4 +428,4 @@ export const abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-] as const;
+] as const

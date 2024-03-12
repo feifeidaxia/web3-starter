@@ -1,3 +1,15 @@
+import { memo, useState } from "react"
+import { wagmigotchiABI } from "@/assets/data/abi/index"
+import Icon from "@/assets/svg/one"
+import { BigNumber, utils } from "ethers"
+import {
+  useBalance,
+  useContractWrite,
+  usePrepareContractWrite,
+  useWaitForTransaction,
+} from "wagmi"
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -10,16 +22,112 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { memo } from "react"
 
- const UesrMenu = memo(function MainMenu() {
+const UesrMenu = memo(function MainMenu(props: any) {
+  const { address } = props
+  const [ethValue, setEthValue] = useState("")
+  const [toAddress, setToAddress] = useState("")
+  const [weiValue, setWeiValue] = useState<BigNumber>(BigNumber.from(0))
+
+  const { data: userInfo } = useBalance({
+    address,
+  })
+
+  const { config } = usePrepareContractWrite({
+    address: "0x0d52b8D6311689396cc797CdECA7218B4a1f6188",
+    abi: wagmigotchiABI,
+    functionName: "transfer",
+    args: [toAddress as `0x${string}`, weiValue],
+  })
+
+  const { data: writeData, write } = useContractWrite(config)
+
+  const { isLoading, isSuccess } = useWaitForTransaction({
+    hash: writeData?.hash,
+  })
+
+  const handleChange = (e) => {
+    const value = e.target.value
+    setEthValue(value)
+    setWeiValue(BigNumber.from(utils.parseEther(value.toString())))
+  }
+  const handleToAddressChange = (e) => {
+    setToAddress(e.target.value)
+  }
   return (
-    <Tabs defaultValue="account" className="w-[400px]">
+    <Tabs defaultValue="send" className="w-[400px]">
       <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="account">Account</TabsTrigger>
-        <TabsTrigger value="password">Password</TabsTrigger>
+        <TabsTrigger value="send">send</TabsTrigger>
+        <TabsTrigger value="buy">buy</TabsTrigger>
       </TabsList>
-      <TabsContent value="account">
+      <TabsContent value="send">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm text-slate-500 hover:text-blue-600">
+              你正在发送
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="space-y-1">
+              <Input
+                type="number"
+                value={ethValue}
+                onChange={handleChange}
+                id="ethValue"
+              />
+            </div>
+            <div className="space-y-1">
+              <div className="flex justify-between items-center cursor-pointer hover:bg-gray-200 active:bg-gray-300 bg-gray-100 rounded-lg h-16 px-2">
+                <div className="flex justify-center">
+                  <div className="mr-2">
+                    <Avatar>
+                      <AvatarImage
+                        src="https://github.com/shadcn.png"
+                        alt="@shadcn"
+                      />
+                      <AvatarFallback>CN</AvatarFallback>
+                    </Avatar>
+                  </div>
+                  <div className="flex justify-center flex-col">
+                    <span className="text-base">{userInfo?.symbol}</span>
+                    <span className="text-xs text-gray-500">
+                      Balance：{userInfo?.formatted}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <Icon />
+                </div>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="username">接收者</Label>
+              <Input
+                value={toAddress}
+                onChange={handleToAddressChange}
+                id="username"
+                placeholder="钱包地址或ENS名称"
+              />
+            </div>
+          </CardContent>
+          <CardFooter className="relative">
+            <Button disabled={!write || isLoading} onClick={() => write?.()}>
+              发送
+            </Button>
+            {isSuccess && (
+              <div>
+                Successfully minted your NFT!
+                <div>
+                  <a href={`https://etherscan.io/tx/${writeData?.hash}`}>
+                    Etherscan
+                  </a>
+                </div>
+              </div>
+            )}
+          </CardFooter>
+        </Card>
+      </TabsContent>
+      <TabsContent value="buy">
         <Card>
           <CardHeader>
             <CardTitle>Account</CardTitle>
@@ -42,31 +150,8 @@ import { memo } from "react"
           </CardFooter>
         </Card>
       </TabsContent>
-      <TabsContent value="password">
-        <Card>
-          <CardHeader>
-            <CardTitle>Password</CardTitle>
-            <CardDescription>
-              Change your password here. After saving, you'll be logged out.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="space-y-1">
-              <Label htmlFor="current">Current password</Label>
-              <Input id="current" type="password" />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="new">New password</Label>
-              <Input id="new" type="password" />
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button>Save password</Button>
-          </CardFooter>
-        </Card>
-      </TabsContent>
     </Tabs>
   )
- })
+})
 
- export default UesrMenu
+export default UesrMenu

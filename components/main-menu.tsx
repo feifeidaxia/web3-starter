@@ -14,7 +14,7 @@ const MainMenu = memo(function MainMenu() {
       <>
         <NetworkSwitcher />
         <UserDropdownMenu address={address} />
-        <UesrMenu />
+        <UesrMenu address={address} />
       </>
     )
   } else {
