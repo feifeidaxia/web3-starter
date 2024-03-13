@@ -17,6 +17,14 @@ export const NetworkSwitcher = () => {
   const { chains, error, isLoading, pendingChainId, switchNetwork } =
     useSwitchNetwork()
 
+  const commonChains = [
+    { id: 56, name: "BNB Chain" },
+    { id: 127, name: "Polygon Mainnet" },
+    { id: 8453, name: "Base" },
+    { id: 2222, name: "Kava" },
+    { id: 59144, name: "Linea" },
+  ]
+  const allChains = [...commonChains, ...chains]
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -28,7 +36,7 @@ export const NetworkSwitcher = () => {
       <DropdownMenuContent className="w-56">
         <DropdownMenuLabel>Select a Network</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {chains.map((chain) => (
+        {allChains.map((chain) => (
           <DropdownMenuRadioItem
             key={chain.id}
             value={chain.name}

@@ -1,15 +1,16 @@
 import { memo, useEffect, useState } from "react"
 import { wagmigotchiABI } from "@/assets/data/abi/index"
-import Icon from "@/assets/svg/one"
+import { RocketIcon } from "@radix-ui/react-icons"
 import { BigNumber, utils } from "ethers"
+import { Address } from "viem"
 import {
   useBalance,
   useContractWrite,
   usePrepareContractWrite,
   useWaitForTransaction,
 } from "wagmi"
-// import { useDebounceValue } from 'usehooks-ts'
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -19,22 +20,42 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Address } from 'viem';
+
+import CenterInfo from "./center-info"
+import { SelectButton } from "./select-button"
+import TokenList from "./token-list"
 
 const UesrMenu = memo(function MainMenu(props: any) {
   const { address } = props
   const [ethValue, setEthValue] = useState("")
   const [toAddress, setToAddress] = useState("")
+  const [sendTitle, setSendTitle] = useState("Enter an amount")
   const [weiValue, setWeiValue] = useState<BigNumber>(BigNumber.from(0))
-  // const debouncedTokenId = useDebounceValue(ethValue, 500)
 
   const { data: userInfo } = useBalance({
     address,
   })
-
+  useEffect(() => {
+    if (ethValue && toAddress == "") {
+      setSendTitle("Enter a address")
+    } else if (ethValue && toAddress) {
+      setSendTitle("Send a transaction")
+    } else if (!ethValue && toAddress == "") {
+      setSendTitle("Enter an amount")
+    }
+  }, [ethValue, toAddress])
   const { config } = usePrepareContractWrite({
     address: "0x0d52b8D6311689396cc797CdECA7218B4a1f6188",
     abi: wagmigotchiABI,
@@ -51,7 +72,9 @@ const UesrMenu = memo(function MainMenu(props: any) {
   const handleChange = (e: { target: { value: any } }) => {
     const value = e.target.value
     setEthValue(value)
-    setWeiValue(BigNumber.from(utils.parseEther(value.toString())));
+    if (value) {
+      setWeiValue(BigNumber.from(utils.parseEther(value.toString())))
+    }
   }
   const handleToAddressChange = (e) => {
     setToAddress(e.target.value)
@@ -77,32 +100,27 @@ const UesrMenu = memo(function MainMenu(props: any) {
                 value={ethValue}
                 onChange={handleChange}
                 id="ethValue"
-                placeholder="account"
+                placeholder="amount"
               />
             </div>
             <div className="space-y-1">
-              <div className="flex justify-between items-center cursor-pointer hover:bg-gray-200 active:bg-gray-300 bg-gray-100 rounded-lg h-16 px-2">
-                <div className="flex justify-center">
-                  <div className="mr-2">
-                    <Avatar>
-                      <AvatarImage
-                        src="https://github.com/shadcn.png"
-                        alt="@shadcn"
-                      />
-                      <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
-                  </div>
-                  <div className="flex justify-center flex-col">
-                    <span className="text-base">{userInfo?.symbol}</span>
-                    <span className="text-xs text-gray-500">
-                      Balance：{userInfo?.formatted}
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  <Icon />
-                </div>
-              </div>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button className="size-full">
+                    <CenterInfo userInfo={userInfo} />
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Select a Token</DialogTitle>
+                  </DialogHeader>
+                  <Input placeholder="Search name or paste address" />
+                  <div>Common tokens</div>
+                  <SelectButton />
+                  <TokenList />
+                  <DialogFooter className="sm:justify-start"></DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
             <div className="space-y-1">
               <Label htmlFor="username">接收者</Label>
@@ -115,9 +133,24 @@ const UesrMenu = memo(function MainMenu(props: any) {
             </div>
           </CardContent>
           <CardFooter className="relative">
-            <Button disabled={!write || isLoading} onClick={() => write?.()}>
-              transfer
+            <Button
+              className="size-full"
+              disabled={!write || isLoading}
+              onClick={() => write?.()}
+            >
+              {sendTitle}
             </Button>
+            {/* {isSuccess && (
+              <Alert>
+                <RocketIcon className="h-4 w-4" />
+                <AlertTitle>Heads up!</AlertTitle>
+                <AlertDescription>
+                  <a href={`https://etherscan.io/tx/${writeData?.hash}`}>
+                    Etherscan
+                  </a>
+                </AlertDescription>
+              </Alert>
+            )} */}
           </CardFooter>
         </Card>
       </TabsContent>
