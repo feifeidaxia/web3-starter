@@ -1,4 +1,4 @@
-import { memo } from "react"
+import { memo, useEffect } from "react"
 import Icon from "@/assets/svg/one"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -13,14 +13,14 @@ const CenterInfo = memo(function CenterInfo(props: any) {
           <Avatar>
             <AvatarImage
               src="https://assets.pancakeswap.finance/web/native/8453.png"
-              alt="@shadcn"
+              alt=""
             />
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
         </div>
         <div className="flex justify-center flex-col">
           <span className="text-left">{userInfo?.symbol}</span>
-          <span className="text-xs text-gray-500">
+          <span className="text-start text-xs text-gray-500">
             {Number(userInfo?.formatted).toFixed(3)}
           </span>
         </div>

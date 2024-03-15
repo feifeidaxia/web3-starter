@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/card"
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -37,13 +38,13 @@ import CenterInfo from "./center-info"
 import { SelectButton } from "./select-button"
 import TokenList from "./token-list"
 
-const UesrMenu = memo(function MainMenu(props: any) {
+const UesrMenu = memo(function UesrMenu(props: any) {
   const { address } = props
   const [ethValue, setEthValue] = useState("")
   const [toAddress, setToAddress] = useState("")
+  const [newToken, setNewToken] = useState({})
   const [sendTitle, setSendTitle] = useState("Enter an amount")
   const [weiValue, setWeiValue] = useState<BigNumber>(BigNumber.from(0))
-
   const { data: userInfo } = useBalance({
     address,
   })
@@ -79,6 +80,12 @@ const UesrMenu = memo(function MainMenu(props: any) {
   const handleToAddressChange = (e) => {
     setToAddress(e.target.value)
   }
+  const handleTokenSelect = (item: any) => {
+    if (userInfo) {
+      userInfo.symbol = item.name
+    }
+    setNewToken(item)
+  }
 
   return (
     <Tabs defaultValue="send" className="w-[400px]">
@@ -107,7 +114,7 @@ const UesrMenu = memo(function MainMenu(props: any) {
               <Dialog>
                 <DialogTrigger asChild>
                   <button className="size-full">
-                    <CenterInfo userInfo={userInfo} />
+                    <CenterInfo userInfo={userInfo} newToken={newToken} />
                   </button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-md">
@@ -117,8 +124,12 @@ const UesrMenu = memo(function MainMenu(props: any) {
                   <Input placeholder="Search name or paste address" />
                   <div>Common tokens</div>
                   <SelectButton />
-                  <TokenList />
-                  <DialogFooter className="sm:justify-start"></DialogFooter>
+                  <DialogClose asChild>
+                    <button>
+                      <TokenList onTokenSelect={handleTokenSelect} />
+                    </button>
+                  </DialogClose>
+                  {/* <DialogFooter className="sm:justify-start"></DialogFooter> */}
                 </DialogContent>
               </Dialog>
             </div>

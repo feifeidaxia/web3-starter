@@ -27,12 +27,16 @@ const TokenList = memo(function TokenList(props: any) {
     },
   ]
 
+  const selectToken = (item: any) => {
+    props.onTokenSelect(item)
+  }
   return (
     <div>
       {tokenInfo.map((item, index) => (
         <div
           key={index}
-          className="flex justify-between mb-3 items-center cursor-pointer hover:bg-gray-200 active:bg-gray-300 bg-gray-100 rounded-lg h-16 px-2"
+          onClick={() => selectToken(item)}
+          className="flex justify-between items-center cursor-pointer hover:bg-gray-100 active:bg-gray-300  rounded-lg h-16 px-2"
         >
           <div className="flex justify-center">
             <div className="mr-2">
@@ -43,7 +47,9 @@ const TokenList = memo(function TokenList(props: any) {
             </div>
             <div className="flex justify-center flex-col">
               <span className="text-left">{item.name}</span>
-              <span className="text-xs text-gray-500">{item.description}</span>
+              <span className="text-xs text-gray-500">
+                {item.description}
+              </span>
             </div>
           </div>
           <div>
