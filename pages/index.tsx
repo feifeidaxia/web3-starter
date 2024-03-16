@@ -20,10 +20,10 @@ export default function IndexPage() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <section className="container grid items-center gap-6 pb-8 pt-6 md:py-10">
-        <div className="flex flex-col justify-center items-center gap-2">
-          <DynamicMainMenu />
-        </div>
+      <section style={{ height: "calc(100vh - 64px)", overflow: "hidden" }}>
+        {/* <div className="flex flex-col justify-center items-center gap-2"> */}
+        <DynamicMainMenu />
+        {/* </div> */}
       </section>
     </Layout>
   )

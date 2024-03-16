@@ -32,7 +32,7 @@ export const NetworkSwitcher = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button>
+        <Button variant="outline">
           {currentChain?.name ?? currentChain?.id}
           {currentChain?.unsupported && " (unsupported)"}
         </Button>
@@ -40,7 +40,7 @@ export const NetworkSwitcher = () => {
       <DropdownMenuContent>
         <DropdownMenuLabel>Select a Network</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <div className="w-30 overflow-y-auto">
+        <div className="w-30 max-h-32 overflow-y-auto">
           {chains.map((chain) => (
             <DropdownMenuRadioItem
               className="pl-2"

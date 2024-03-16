@@ -2,7 +2,6 @@ import { memo, useEffect, useState } from "react"
 import { wagmigotchiABI } from "@/assets/data/abi/index"
 import { RocketIcon } from "@radix-ui/react-icons"
 import { BigNumber, utils } from "ethers"
-import { Address } from "viem"
 import {
   useBalance,
   useContractWrite,
@@ -38,6 +37,7 @@ import CenterInfo from "./center-info"
 import { SelectButton } from "./select-button"
 import TokenList from "./token-list"
 
+type AddressType = `0x${string}`;
 const UesrMenu = memo(function UesrMenu(props: any) {
   const { address } = props
   const [ethValue, setEthValue] = useState("")
@@ -61,7 +61,7 @@ const UesrMenu = memo(function UesrMenu(props: any) {
     address: "0x0d52b8D6311689396cc797CdECA7218B4a1f6188",
     abi: wagmigotchiABI,
     functionName: "transfer",
-    args: [toAddress as Address, weiValue],
+    args: [toAddress as AddressType, weiValue],
   })
 
   const { data: writeData, write } = useContractWrite(config)
@@ -88,7 +88,7 @@ const UesrMenu = memo(function UesrMenu(props: any) {
   }
 
   return (
-    <Tabs defaultValue="send" className="w-[400px]">
+    <Tabs defaultValue="send" className="w-[400px] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
       <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="send">send</TabsTrigger>
         <TabsTrigger value="buy">buy</TabsTrigger>

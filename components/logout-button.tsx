@@ -21,7 +21,7 @@ const UserDropdownMenu = ({ address }) => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <div className="flex items-center">
-          <Avatar className="h-8 w-8">
+          <Avatar className="h-8 w-8 ml-3">
             <AvatarFallback>
               <User className="h-4 w-4" />
             </AvatarFallback>

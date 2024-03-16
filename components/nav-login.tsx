@@ -1,18 +1,18 @@
 import { Loader2 } from "lucide-react"
-import { useAccount, useConnect, useDisconnect } from "wagmi"
-import { InjectedConnector } from "wagmi/connectors/injected"
+import { useAccount, useConnect } from "wagmi"
+
+// import { InjectedConnector } from "wagmi/connectors/injected"
 
 import { Button } from "@/components/ui/button"
 
 import UserDropdownMenu from "./logout-button"
 import NetworkSwitcher from "./network-switcher"
 
-export function NavLogin() {
+export default function NavLogin() {
   const { address, isConnected } = useAccount()
 
   const { connect, connectors, error, isLoading, pendingConnector } =
-    useConnect({ connector: new InjectedConnector() })
-  const { disconnect } = useDisconnect()
+    useConnect()
 
   if (isConnected) {
     return (
@@ -23,10 +23,10 @@ export function NavLogin() {
     )
   }
 
-  // const metamask = connectors.find((connector) => connector.id === "metaMask")
-  // if (!metamask) {
-  //   return <></>
-  // }
+  const metamask = connectors.find((connector) => connector.id === "metaMask")
+  if (!metamask) {
+    return <></>
+  }
 
   return (
     <>
@@ -39,7 +39,12 @@ export function NavLogin() {
         // <Button onClick={() => connect({ connector: metamask })}>
         //   Connect Metamask
         // </Button>
-        <Button onClick={() => connect()}>Connect Metamask</Button>
+        <Button
+          variant="outline"
+          onClick={() => connect({ connector: metamask })}
+        >
+          Connect Metamask
+        </Button>
       )}
     </>
     // </Button>
