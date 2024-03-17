@@ -1,5 +1,6 @@
 import { memo, useEffect, useState } from "react"
 import { wagmigotchiABI } from "@/assets/data/abi/index"
+import useLoadingStore from "@/store/loadingStore"
 import { RocketIcon } from "@radix-ui/react-icons"
 import { BigNumber, utils } from "ethers"
 import {
@@ -32,12 +33,14 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ToastAction } from "@/components/ui/toast"
+import { useToast } from "@/components/ui/use-toast"
 
 import CenterInfo from "./center-info"
 import { SelectButton } from "./select-button"
 import TokenList from "./token-list"
 
-type AddressType = `0x${string}`;
+type AddressType = `0x${string}`
 const UesrMenu = memo(function UesrMenu(props: any) {
   const { address } = props
   const [ethValue, setEthValue] = useState("")
@@ -48,6 +51,9 @@ const UesrMenu = memo(function UesrMenu(props: any) {
   const { data: userInfo } = useBalance({
     address,
   })
+  // const { setPageLoading } = useLoadingStore()
+  const setPageLoading = useLoadingStore((state) => state.setPageLoading)
+  const { toast } = useToast()
   useEffect(() => {
     if (ethValue && toAddress == "") {
       setSendTitle("Enter a address")
@@ -64,9 +70,14 @@ const UesrMenu = memo(function UesrMenu(props: any) {
     args: [toAddress as AddressType, weiValue],
   })
 
-  const { data: writeData, write } = useContractWrite(config)
+  const {
+    data: writeData,
+    write,
+    isLoading: ContractWriteLoading,
+    isError: ContractWriteError,
+  } = useContractWrite(config)
 
-  const { isLoading, isSuccess } = useWaitForTransaction({
+  const { isLoading, isSuccess, isError } = useWaitForTransaction({
     hash: writeData?.hash,
   })
 
@@ -87,8 +98,43 @@ const UesrMenu = memo(function UesrMenu(props: any) {
     setNewToken(item)
   }
 
+  const handleRetry = () => {
+    toast({
+      title: "Transaction successful!",
+      // description: writeData?.hash,
+      action: (
+        <ToastAction altText="Get info">
+          <a href={`https://etherscan.io/tx/${writeData?.hash}`}>Get info</a>
+        </ToastAction>
+      ),
+    })
+  }
+  const handleRetryError = () => {
+    toast({
+      variant: "destructive",
+      title: "Uh oh! Something went wrong.",
+      description: "User rejected request",
+      action: <ToastAction altText="Try again">Try again</ToastAction>,
+    })
+  }
+  useEffect(() => {
+    if (isSuccess) {
+      handleRetry()
+      setPageLoading(false)
+    }
+    if (ContractWriteLoading) {
+      setPageLoading(ContractWriteLoading)
+    }
+    if (isError || ContractWriteError) {
+      handleRetryError()
+      setPageLoading(false)
+    }
+  }, [isSuccess, ContractWriteLoading, isError, ContractWriteError])
   return (
-    <Tabs defaultValue="send" className="w-[400px] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+    <Tabs
+      defaultValue="send"
+      className="w-[400px] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+    >
       <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="send">send</TabsTrigger>
         <TabsTrigger value="buy">buy</TabsTrigger>
@@ -151,17 +197,6 @@ const UesrMenu = memo(function UesrMenu(props: any) {
             >
               {sendTitle}
             </Button>
-            {/* {isSuccess && (
-              <Alert>
-                <RocketIcon className="h-4 w-4" />
-                <AlertTitle>Heads up!</AlertTitle>
-                <AlertDescription>
-                  <a href={`https://etherscan.io/tx/${writeData?.hash}`}>
-                    Etherscan
-                  </a>
-                </AlertDescription>
-              </Alert>
-            )} */}
           </CardFooter>
         </Card>
       </TabsContent>

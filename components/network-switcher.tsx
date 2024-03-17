@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useNetwork, useSwitchNetwork } from "wagmi"
 
 import { Button } from "@/components/ui/button"
@@ -28,7 +28,11 @@ export const NetworkSwitcher = () => {
       action: <ToastAction altText="Try again">Try again</ToastAction>,
     })
   }
-
+  useEffect(() => {
+    if (error) {
+      handleRetry()
+    }
+  }, [error])
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -54,11 +58,6 @@ export const NetworkSwitcher = () => {
             </DropdownMenuRadioItem>
           ))}
         </div>
-        {error && (
-          <ToastAction altText="Try again" onClick={handleRetry}>
-            Try again
-          </ToastAction>
-        )}
       </DropdownMenuContent>
     </DropdownMenu>
   )
